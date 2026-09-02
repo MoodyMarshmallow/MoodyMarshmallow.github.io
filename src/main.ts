@@ -141,6 +141,31 @@ let stageRect = stage.getBoundingClientRect();
 let copyRect = document.querySelector('.homepage-copy')?.getBoundingClientRect() ?? null;
 let pointerPosition: { x: number; y: number } | null = null;
 let activePointerId: number | null = null;
+let saturationFrame: number | null = null;
+
+function updateRenderSaturation(): void {
+  saturationFrame = null;
+  const firstSectionAnchor = document.querySelector<HTMLElement>('.section-snap-anchor');
+  if (!firstSectionAnchor) return;
+
+  // The first anchor is the native CSS snap target for Experience. Its
+  // document-space center gives us the exact scroll position where that slide
+  // is centered, independent of section height or responsive layout.
+  const anchorRect = firstSectionAnchor.getBoundingClientRect();
+  const experienceCenterY = anchorRect.top + window.scrollY + anchorRect.height / 2;
+  const experienceSnapScrollY = experienceCenterY - window.innerHeight / 2;
+  const progress = experienceSnapScrollY > 0
+    ? THREE.MathUtils.clamp(window.scrollY / experienceSnapScrollY, 0, 1)
+    : 1;
+  const saturation = 1 - progress;
+  stage.style.setProperty('--scroll-saturation', saturation.toFixed(3));
+  stage.dataset.renderSaturation = saturation.toFixed(3);
+}
+
+function scheduleRenderSaturation(): void {
+  if (saturationFrame !== null) return;
+  saturationFrame = window.requestAnimationFrame(updateRenderSaturation);
+}
 
 function isInsideFlower(x: number, y: number): boolean {
   return !isMobileOrTablet && window.scrollY <= 1
@@ -198,8 +223,9 @@ function applyDeviceInteractionMode(): void {
   effectElement.style.pointerEvents = canControlCamera ? 'auto' : 'none';
   document.documentElement.classList.toggle('is-scrolled', !isAtTop);
   document.documentElement.dataset.deviceMode = isMobileOrTablet ? 'mobile' : 'desktop';
-  viewportHelp?.toggleAttribute('hidden', isMobileOrTablet || !isAtTop);
+  viewportHelp?.toggleAttribute('hidden', isMobileOrTablet);
   updateFlowerHover();
+  scheduleRenderSaturation();
 }
 
 applyDeviceInteractionMode();
@@ -212,6 +238,12 @@ if (homepageCopy) {
     copyRect = homepageCopy.getBoundingClientRect();
     updateFlowerHover();
   }).observe(homepageCopy);
+}
+const homepageContent = document.querySelector('.homepage-content');
+if (homepageContent && 'ResizeObserver' in window) {
+  // Font swaps and responsive content can move the snap anchor without a
+  // window resize; keep the saturation ramp tied to the current layout.
+  new ResizeObserver(scheduleRenderSaturation).observe(homepageContent);
 }
 
 document.addEventListener('pointermove', (event) => {
@@ -479,4 +511,5 @@ function animate(time: number): void {
 
 window.addEventListener('resize', resize);
 resize();
+scheduleRenderSaturation();
 renderer.setAnimationLoop(animate);
