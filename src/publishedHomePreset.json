@@ -2,9 +2,9 @@
   "version": 2,
   "color": true,
   "unicode": false,
-  "glyphSize": 8,
-  "colorBrightness": 24,
-  "colorSaturation": 10,
+  "glyphSize": 9,
+  "colorBrightness": 36,
+  "colorSaturation": 23,
   "materialRoughness": 1,
   "rotationSpeed": 20,
   "defaultTilt": 0,
@@ -33,7 +33,7 @@
       "y": 186.07654127065942,
       "z": -64.01440373130947
     },
-    "spinAngle": 314.81163839963324,
+    "spinAngle": 317.668327199614,
     "pan": {
       "x": -0.15729887755987507,
       "y": 0.39741592560120453
