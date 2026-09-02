@@ -1,2 +1,5 @@
-# Auto detect text files and perform LF normalization
+# Normalize text files while keeping generated and document assets binary.
 * text=auto
+*.pdf binary
+*.ttf binary
+*.protea binary

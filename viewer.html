@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive 3D viewer for Milo Shan's edited king protea asset." />
+    <title>King Protea · 3D Viewer</title>
+  </head>
+  <body>
+    <main class="viewer-shell">
+      <header class="viewer-header">
+        <a class="back-link" href="/" aria-label="Back to the home page">← MILO SHAN</a>
+        <div class="viewer-title">
+          <span>ASSET VIEWER</span>
+          <strong>KING PROTEA · MAIN STALK</strong>
+        </div>
+        <div class="viewer-actions">
+          <button id="rotate-toggle" type="button" aria-pressed="true">AUTO-ROTATE: ON</button>
+          <button id="reset-view" type="button">RESET VIEW</button>
+          <button id="controls-open" type="button" aria-controls="control-panel" aria-expanded="true" hidden>OPEN CONTROLS</button>
+        </div>
+      </header>
+
+      <aside id="control-panel" class="ascii-controls" aria-label="Viewer and ASCII renderer controls">
+        <div class="ascii-controls__heading">
+          <span id="control-panel-drag-handle" class="ascii-controls__drag-handle">DEV CONTROLS · DRAG</span>
+          <button id="controls-close" class="ascii-controls__close" type="button" aria-label="Close control panel">×</button>
+        </div>
+        <div class="ascii-controls__options">
+          <section class="ascii-control-group" aria-labelledby="render-controls-title">
+            <span id="render-controls-title" class="ascii-control-group__title">RENDER MODE</span>
+            <button id="ascii-toggle" type="button" aria-pressed="false">ASCII: OFF</button>
+            <button id="ascii-color-toggle" type="button" aria-pressed="true" disabled>COLOR: FULL</button>
+          </section>
+
+          <section class="ascii-control-group" aria-labelledby="appearance-controls-title">
+            <span id="appearance-controls-title" class="ascii-control-group__title">MATERIAL &amp; COLOR</span>
+            <label class="ascii-range" for="material-roughness">
+              <span>MATERIAL ROUGHNESS</span>
+              <input id="material-roughness" type="range" min="0" max="1" step="0.01" value="0.5" disabled />
+              <output id="material-roughness-output" for="material-roughness">—</output>
+            </label>
+            <label class="ascii-range" for="ascii-brightness">
+              <span>COLOR BRIGHTNESS</span>
+              <input id="ascii-brightness" type="range" min="0" max="100" step="1" value="50" disabled />
+              <output id="ascii-brightness-output" for="ascii-brightness">50%</output>
+            </label>
+            <label class="ascii-range" for="ascii-saturation">
+              <span>SATURATION</span>
+              <input id="ascii-saturation" type="range" min="-100" max="100" step="1" value="0" disabled />
+              <output id="ascii-saturation-output" for="ascii-saturation">0</output>
+            </label>
+          </section>
+
+          <section class="ascii-control-group" aria-labelledby="glyph-controls-title">
+            <span id="glyph-controls-title" class="ascii-control-group__title">GLYPH DETAIL &amp; MAPPING</span>
+            <button id="ascii-charset-toggle" class="ascii-control-group__wide-button" type="button" aria-pressed="false" disabled>GLYPHS: ASCII</button>
+            <label class="ascii-range" for="ascii-size">
+              <span>GLYPH SIZE</span>
+              <input id="ascii-size" type="range" min="2" max="18" step="1" value="12" disabled />
+              <output id="ascii-size-value" for="ascii-size">12 PX</output>
+            </label>
+            <section class="luminance-curve" aria-labelledby="curve-title">
+              <div class="luminance-curve__header">
+                <span id="curve-title">LUMINANCE TRANSFER</span>
+                <button id="curve-reset" type="button" disabled>RESET CURVE</button>
+              </div>
+              <p id="curve-help" class="luminance-curve__help">
+                CLICK TO ADD · DRAG POINTS · DOUBLE-CLICK TO REMOVE
+              </p>
+              <svg
+                id="curve-graph"
+                class="curve-graph"
+                viewBox="0 0 240 132"
+                role="group"
+                aria-labelledby="curve-title"
+                aria-describedby="curve-help"
+              >
+                <rect class="curve-graph__plot" x="22" y="8" width="202" height="102" rx="1" />
+                <path class="curve-graph__grid" d="M22 33.5H224 M22 59H224 M22 84.5H224 M72.5 8V110 M123 8V110 M173.5 8V110" />
+                <path class="curve-graph__diagonal" d="M22 110L224 8" />
+                <path id="curve-path" class="curve-graph__line" d="M22 110L224 8" />
+                <g id="curve-points" class="curve-graph__points"></g>
+                <text class="curve-graph__axis curve-graph__axis--x" x="224" y="126" text-anchor="end">INPUT LUMINANCE</text>
+                <text class="curve-graph__axis curve-graph__axis--y" x="8" y="11" text-anchor="start">GLYPH LUMINANCE</text>
+              </svg>
+              <output id="curve-value" class="luminance-curve__value" aria-live="polite">LINEAR</output>
+            </section>
+          </section>
+
+          <section class="ascii-control-group" aria-labelledby="motion-controls-title">
+            <span id="motion-controls-title" class="ascii-control-group__title">MOTION &amp; VIEW</span>
+            <label class="ascii-range" for="rotation-speed">
+              <span>ROTATION SPEED</span>
+              <input id="rotation-speed" type="range" min="0" max="200" step="5" value="100" />
+              <output id="rotation-speed-output" for="rotation-speed">100%</output>
+            </label>
+            <label class="ascii-range" for="default-tilt">
+              <span>DEFAULT TILT</span>
+              <input id="default-tilt" type="range" min="-45" max="45" step="1" value="0" />
+              <output id="default-tilt-output" for="default-tilt">0°</output>
+            </label>
+          </section>
+
+          <div class="ascii-controls__preset-actions">
+            <button id="curve-save" type="button" disabled>SAVE DRAFT</button>
+            <button id="preset-publish" type="button" disabled>PUBLISH TO HOME</button>
+          </div>
+        </div>
+      </aside>
+
+      <div
+        id="viewer-stage"
+        class="viewer-stage"
+        role="img"
+        aria-label="Interactive three-dimensional view of the edited king protea main stalk"
+      >
+        <p id="viewer-status" class="viewer-status">LOADING ORIGINAL MATERIALS…</p>
+      </div>
+
+      <aside class="viewer-meta" aria-live="polite">
+        <span id="mesh-count">— MESHES</span>
+        <span id="triangle-count">— TRIANGLES</span>
+        <span id="render-mode-label">GLB · ORIGINAL TEXTURES</span>
+        <span
+          id="ascii-fps"
+          role="status"
+          aria-live="polite"
+          data-fps-state="inactive"
+          data-fps-ready="false"
+          data-fps-value="0"
+        >ASCII FPS · OFF</span>
+        <span
+          id="ascii-profile"
+          role="status"
+          aria-live="polite"
+          data-profile-enabled="false"
+          data-profile-ready="false"
+          data-profile-sample-count="0"
+        >ASCII PROFILE · OFF</span>
+      </aside>
+
+      <p id="viewer-hint" class="viewer-hint">LEFT-DRAG TO ORBIT · RIGHT-DRAG TO PAN · SCROLL TO ZOOM</p>
+    </main>
+
+    <script type="module" src="/src/viewer.ts"></script>
+  </body>
+</html>

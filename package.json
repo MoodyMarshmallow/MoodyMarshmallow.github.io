@@ -1,0 +1,33 @@
+{
+  "name": "milo-shan-portfolio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "bun@1.3.14",
+  "scripts": {
+    "dev": "bunx --bun vite --host 127.0.0.1",
+    "build": "bunx --bun vite build",
+    "typecheck": "bunx --bun tsc --noEmit",
+    "pack:model": "bun scripts/pack-model.ts",
+    "check:model": "bun scripts/check-model.ts",
+    "check": "bun run typecheck && bun run check:model",
+    "benchmark:install": "bunx playwright install chromium chromium-headless-shell",
+    "benchmark:ascii": "bun scripts/benchmark-ascii.ts",
+    "compare:ascii:visual": "bun scripts/compare-ascii-visual.ts",
+    "check:ascii:sizes": "bun scripts/check-ascii-sizes.ts",
+    "check:gpu-curve": "bun scripts/check-gpu-luminance-curve.ts",
+    "check:home-title": "bun scripts/check-home-title-responsive.ts",
+    "preview": "bunx --bun vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "three": "0.179.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "@types/node": "24.2.0",
+    "@types/three": "0.179.0",
+    "playwright": "1.55.0",
+    "typescript": "5.9.2",
+    "vite": "7.0.6"
+  }
+}

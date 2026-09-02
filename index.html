@@ -1,316 +1,84 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Milo Shan - AI Research Student & Machine Learning Engineer</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body class="dark-theme">
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Left Half - Timeline -->
-        <div class="timeline-section">
-            <!-- Filter Controls -->
-            <div class="filter-controls">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="achievements">Achievements</button>
-                <button class="filter-btn" data-filter="experience">Experience</button>
-            </div>
-
-            <!-- Timeline Container -->
-            <div class="timeline-container">
-                <div class="timeline">
-                    <!-- 2024 -->
-                    <div class="timeline-item" data-category="experience" data-year="2024">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">July 2024</div>
-                            <h3>MOFs Research Publication</h3>
-                            <p class="timeline-type">Publication</p>
-                            <p>Published "Computational prediction of MOFs with the potential to improve the efficiency of industrial CO₂ capture" in Separation and Purification Technology (Impact Factor: 8.1)</p>
-                            <div class="timeline-tags">
-                                <span class="tag">Machine Learning</span>
-                                <span class="tag">Environmental Science</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="experience" data-year="2024">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">Sept 2024 - Present</div>
-                            <h3>University of Pennsylvania</h3>
-                            <p class="timeline-type">Education</p>
-                            <p>BS in Artificial Intelligence - Currently pursuing degree with focus on machine learning applications and environmental data science</p>
-                            <div class="timeline-tags">
-                                <span class="tag">AI</span>
-                                <span class="tag">Machine Learning</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2023 -->
-                    <div class="timeline-item" data-category="achievements" data-year="2023">
-                        <div class="timeline-marker achievement"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2023</div>
-                            <h3>ISEF Global Finalist</h3>
-                            <p class="timeline-type">Achievement</p>
-                            <p>International Science & Engineering Fair - Top 0.025% of participants worldwide</p>
-                            <div class="timeline-tags">
-                                <span class="tag achievement">Global Recognition</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="experience" data-year="2023">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">May 2023</div>
-                            <h3>Soil Moisture Prediction Research</h3>
-                            <p class="timeline-type">Publication</p>
-                            <p>First-authored "Machine Learning Regression to Predict Soil Moisture in Domestic Garden Environments" - Only high school paper accepted at IEEE ICMIMT</p>
-                            <div class="timeline-tags">
-                                <span class="tag">IEEE</span>
-                                <span class="tag">Machine Learning</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="experience" data-year="2023">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">Jan 2023</div>
-                            <h3>MIT-ISASA Workshop</h3>
-                            <p class="timeline-type">Program</p>
-                            <p>Natural and Artificial Intelligence Workshop - Advanced study program</p>
-                            <div class="timeline-tags">
-                                <span class="tag">MIT</span>
-                                <span class="tag">AI Research</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2022 -->
-                    <div class="timeline-item" data-category="experience" data-year="2022">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">Jun 2022 - Jul 2024</div>
-                            <h3>Research Assistant</h3>
-                            <p class="timeline-type">Work Experience</p>
-                            <p>University of South Africa - Conducted exploratory data analysis for ML algorithms determining optimal Metal-Organic Frameworks for gas absorption</p>
-                            <div class="timeline-tags">
-                                <span class="tag">Research</span>
-                                <span class="tag">Data Analysis</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="achievements" data-year="2022">
-                        <div class="timeline-marker achievement"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2022</div>
-                            <h3>Eskom Science Fair Winner</h3>
-                            <p class="timeline-type">Achievement</p>
-                            <p>Top Senior Scientist Award (Grand Prize) - Computer Science Senior Category Winner</p>
-                            <div class="timeline-tags">
-                                <span class="tag achievement">Grand Prize</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="achievements" data-year="2022">
-                        <div class="timeline-marker achievement"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2022</div>
-                            <h3>Conrad Challenge Global Finalist</h3>
-                            <p class="timeline-type">Achievement</p>
-                            <p>Energy & Environment Category - Top 5 out of 120+ teams globally</p>
-                            <div class="timeline-tags">
-                                <span class="tag achievement">Global Finalist</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="achievements" data-year="2022">
-                        <div class="timeline-marker achievement"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2022</div>
-                            <h3>Breakthrough Junior Challenge</h3>
-                            <p class="timeline-type">Achievement</p>
-                            <p>Top 15 Global Finalist - Top 0.625% of all participants</p>
-                            <div class="timeline-tags">
-                                <span class="tag achievement">Top 15 Global</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="achievements" data-year="2022">
-                        <div class="timeline-marker achievement"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2022</div>
-                            <h3>IYPT National Team Captain</h3>
-                            <p class="timeline-type">Achievement</p>
-                            <p>International Young Physicists' Tournament - Leadership role representing national team</p>
-                            <div class="timeline-tags">
-                                <span class="tag achievement">Leadership</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="achievements" data-year="2022">
-                        <div class="timeline-marker achievement"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2022</div>
-                            <h3>Genius Olympiad Gold Award</h3>
-                            <p class="timeline-type">Achievement</p>
-                            <p>$20,000 scholarship award for outstanding scientific achievement</p>
-                            <div class="timeline-tags">
-                                <span class="tag achievement">$20K Scholarship</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2021-2023 Projects -->
-                    <div class="timeline-item" data-category="experience" data-year="2021">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">Feb 2021 - May 2023</div>
-                            <h3>Independent Research</h3>
-                            <p class="timeline-type">Research Project</p>
-                            <p>Collected novel high-temporal-resolution weather dataset for Southern African climates. Random Forest Regressor achieved 0.84 R-value accuracy</p>
-                            <div class="timeline-tags">
-                                <span class="tag">Data Collection</span>
-                                <span class="tag">ML Models</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="experience" data-year="2021">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2021-2023</div>
-                            <h3>Environmental Data Collection System</h3>
-                            <p class="timeline-type">Technical Project</p>
-                            <p>Created custom sensor array with Arduino to collect environmental data including soil moisture, temperature, humidity, and wind speed</p>
-                            <div class="timeline-tags">
-                                <span class="tag">Arduino</span>
-                                <span class="tag">IoT</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="experience" data-year="2021">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2021-2022</div>
-                            <h3>Weather Image Recognition</h3>
-                            <p class="timeline-type">ML Project</p>
-                            <p>Built customized ResNet50 model to classify weather conditions using dropout layers, cyclic learning rates, and regularization techniques</p>
-                            <div class="timeline-tags">
-                                <span class="tag">PyTorch</span>
-                                <span class="tag">Computer Vision</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item" data-category="experience" data-year="2021">
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">Jul 2021</div>
-                            <h3>Yale Young Global Scholars</h3>
-                            <p class="timeline-type">Program</p>
-                            <p>Innovations in Science and Technology Program - Selective summer program</p>
-                            <div class="timeline-tags">
-                                <span class="tag">Yale</span>
-                                <span class="tag">Innovation</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preload" href="/fonts/PlayfairDisplay-Italic%5Bwght%5D.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="/fonts/RobotoMono%5Bwght%5D.ttf" as="font" type="font/ttf" crossorigin />
+    <meta
+      name="description"
+      content="Milo Shan — software engineer, researcher, and builder."
+    />
+    <title>Milo Shan</title>
+  </head>
+  <body>
+    <div
+      id="ascii-stage"
+      class="ascii-stage"
+      role="img"
+      aria-label="A slowly rotating three-dimensional ASCII rendering of an open king protea"
+    ></div>
+    <main class="homepage-content">
+      <section class="homepage-hero" aria-labelledby="homepage-title">
+        <div class="homepage-copy">
+          <h1 id="homepage-title" class="homepage-title">Hello, I'm Milo</h1>
+          <p class="homepage-intro">I'm currently studying AI at UPenn. Most recently, I interned as a SWE/FDE at Pattern on the AI and Data Science Team, where built an MCP tool suite for Amazon listing SEO. Previously, I've helped OpenAI launch ChatGPT study mode, and worked on multi-agent systems at the PennNLP lab. I'm currently learning about RSI and long-horizon agents.</p>
         </div>
-
-        <!-- Right Half - Hero Section -->
-        <div class="hero-section">
-            <!-- Navigation -->
-            <nav class="side-nav">
-                <div class="nav-brand">
-                    <h1>Milo Shan</h1>
-                </div>
-                <div class="nav-links">
-                    <a href="Milo_Shan_Resume.pdf" target="_blank" class="nav-link resume-link">
-                        <i class="fas fa-file-pdf"></i> Resume
-                    </a>
-                    <a href="https://publish.obsidian.md/miloshan" target="_blank" class="nav-link">
-                        <i class="fas fa-blog"></i> Blog
-                    </a>
-                    <button class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-sun"></i>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- Hero Content -->
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h2 class="hero-title">Hey There!</h2>
-                    <h3 class="hero-subtitle">I'm Milo</h3>
-                    <p class="hero-description">
-                       I'm a student studying Artificial Intelligence at the University of Pennsylvania.  I'm quite interested in startups, technology, philosophy, and everything that makes people tick and the world go round!
-                    </p>
-                </div>
-
-                <div class="hero-image">
-                    <img src="Headshot.JPG" alt="Milo Shan headshot" class="profile-image" />
-                    <!-- Hidden Easter Egg for Art Portfolio -->
-                    <div class="easter-egg" id="artEasterEgg" title="Click to discover something creative...">
-                        <i class="fas fa-palette"></i>
-                    </div>
-                </div>
-
-                <!-- Contact Links -->
-                <div class="contact-links">
-                    <a href="mailto:marshy45@seas.upenn.edu" class="contact-link">
-                        <i class="fas fa-envelope"></i>
-                    </a>
-                    <a href="https://linkedin.com/in/milo-shan" target="_blank" class="contact-link">
-                        <i class="fab fa-linkedin"></i>
-                    </a>
-                    <a href="https://github.com/MoodyMarshmallow" target="_blank" class="contact-link">
-                        <i class="fab fa-github"></i>
-                    </a>
-                </div>
-
-                <!-- Location -->
-                <div class="location">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>Philadelphia, Pennsylvania</span>
-                </div>
-            </div>
+      </section>
+      <section class="content-section" aria-labelledby="experience-heading">
+        <h2 id="experience-heading">Experience</h2>
+        <div class="entry-list">
+          <article class="entry">
+            <h3>Pattern <span>— Software Engineering Intern</span></h3>
+            <p class="entry-meta">May 2026–Present</p>
+            <p>Mapped an end-to-end content workflow, co-developed platform-agnostic tools for an existing copy-generation pipeline, and led alpha testing from user feedback through product requirements and fixes.</p>
+          </article>
+          <article class="entry">
+            <h3>ChatGPT Lab, OpenAI <span>— Lab Member</span></h3>
+            <p class="entry-meta">May 2025–Present</p>
+            <p>Contributed feature testing to ChatGPT Study Mode and participated in technical panels on product strategy.</p>
+          </article>
+          <article class="entry">
+            <h3>PennNLP, University of Pennsylvania <span>— Researcher &amp; Backend Lead</span></h3>
+            <p class="entry-meta">May–August 2025</p>
+            <p>Led a seven-person team building a multi-agent interaction platform, including a 5,000+ line Python backend, turn-based simulation environment, evaluation system, and interactive visualization layer.</p>
+          </article>
         </div>
-    </div>
-
-    <!-- Art Portfolio Modal (Hidden Easter Egg) -->
-    <div id="artModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-palette"></i> Creative Side</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <p>You discovered my artistic side! Here's a collection of my visual art exploring themes of society, environment, and self-expression.</p>
-                <a href="Art portfolio writing.pdf" target="_blank" class="btn btn-primary">
-                    <i class="fas fa-file-pdf"></i> View Art Portfolio
-                </a>
-                <p class="modal-subtitle">Digital and traditional works spanning social commentary, environmental themes, and artistic studies.</p>
-            </div>
+      </section>
+      <section class="content-section" aria-labelledby="projects-heading">
+        <h2 id="projects-heading">Projects</h2>
+        <div class="entry-list">
+          <article class="entry">
+            <h3><a href="https://github.com/MoodyMarshmallow/nano-gpt-speedrun" target="_blank" rel="noreferrer">NanoGPT Training Speedrun</a></h3>
+            <p>Optimized nanoGPT training on roughly 900 million FineWeb tokens, testing gated-attention variants and improving accuracy by 0.6%.</p>
+          </article>
+          <article class="entry">
+            <h3><a href="https://github.com/MoodyMarshmallow/CIS5190_Final_project" target="_blank" rel="noreferrer">Fine-tuning DINOv3 for Image2GPS</a></h3>
+            <p>Built a geolocation pipeline from roughly 3,500 self-collected phone photos and fine-tuned DINOv3-S to 37.27 m external-test error.</p>
+          </article>
         </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
+      </section>
+      <section class="content-section" aria-labelledby="publications-heading">
+        <h2 id="publications-heading">Publications</h2>
+        <div class="entry-list">
+          <article class="entry">
+            <h3><a href="https://doi.org/10.1016/j.seppur.2024.128927" target="_blank" rel="noreferrer">Computational prediction of MOFs with the potential to improve the efficiency of industrial CO₂ capture</a></h3>
+            <p class="entry-meta">July 2024</p>
+          </article>
+          <article class="entry">
+            <h3><a href="https://doi.org/10.1109/ICMIMT59138.2023.10199334" target="_blank" rel="noreferrer">Machine Learning Regression to Predict Soil Moisture in Domestic Garden Environments</a></h3>
+            <p class="entry-meta">May 2023</p>
+          </article>
+        </div>
+      </section>
+    </main>
+    <aside class="viewport-help" aria-label="Viewport controls">
+      <p class="viewport-help__instructions">
+        <span>Left-drag to orbit</span>
+        <span>Right-drag to pan</span>
+        <span id="zoom-instruction">Pinch or ⌘ + scroll to zoom</span>
+      </p>
+    </aside>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
