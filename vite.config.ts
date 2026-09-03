@@ -61,7 +61,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         home: fileURLToPath(new URL('./index.html', import.meta.url)),
-        viewer: fileURLToPath(new URL('./viewer.html', import.meta.url)),
       },
     },
   },

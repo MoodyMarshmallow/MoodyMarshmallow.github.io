@@ -18,6 +18,7 @@
     "check:gpu-curve": "bun scripts/check-gpu-luminance-curve.ts",
     "check:home-title": "bun scripts/check-home-title-responsive.ts",
     "check:home-scroll": "bun scripts/check-home-scroll-behavior.ts",
+    "check:production-output": "bun scripts/check-production-output.ts",
     "preview": "bunx --bun vite preview --host 127.0.0.1"
   },
   "dependencies": {
