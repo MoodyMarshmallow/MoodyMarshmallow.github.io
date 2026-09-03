@@ -145,15 +145,13 @@ let saturationFrame: number | null = null;
 
 function updateRenderSaturation(): void {
   saturationFrame = null;
-  const firstSectionAnchor = document.querySelector<HTMLElement>('.section-snap-anchor');
-  if (!firstSectionAnchor) return;
+  const firstSection = document.querySelector<HTMLElement>('.content-section');
+  if (!firstSection) return;
 
-  // The first anchor is the native CSS snap target for Experience. Its
-  // document-space center gives us the exact scroll position where that slide
-  // is centered, independent of section height or responsive layout.
-  const anchorRect = firstSectionAnchor.getBoundingClientRect();
-  const experienceCenterY = anchorRect.top + window.scrollY + anchorRect.height / 2;
-  const experienceSnapScrollY = experienceCenterY - window.innerHeight / 2;
+  // The first section's document-space top is the native CSS snap target for
+  // Experience, independent of section height or responsive layout.
+  const sectionRect = firstSection.getBoundingClientRect();
+  const experienceSnapScrollY = sectionRect.top + window.scrollY;
   const progress = experienceSnapScrollY > 0
     ? THREE.MathUtils.clamp(window.scrollY / experienceSnapScrollY, 0, 1)
     : 1;
@@ -241,7 +239,7 @@ if (homepageCopy) {
 }
 const homepageContent = document.querySelector('.homepage-content');
 if (homepageContent && 'ResizeObserver' in window) {
-  // Font swaps and responsive content can move the snap anchor without a
+  // Font swaps and responsive content can move the section snap target without a
   // window resize; keep the saturation ramp tied to the current layout.
   new ResizeObserver(scheduleRenderSaturation).observe(homepageContent);
 }

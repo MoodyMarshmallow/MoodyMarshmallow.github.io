@@ -22,8 +22,8 @@ type SnapState = {
   rootSnapType: string;
   heroAlign: string;
   heroStop: string;
-  anchorAlignments: string[];
-  anchorStops: string[];
+  contentAlignments: string[];
+  contentStops: string[];
   experienceTargetY: number;
   renderSaturation: string;
 };
@@ -47,18 +47,18 @@ async function main(): Promise<void> {
     const desktopState = await page.evaluate<SnapState>(() => {
       const hero = document.querySelector<HTMLElement>('.homepage-hero');
       const sections = [...document.querySelectorAll<HTMLElement>('.content-section')];
-      const anchors = [...document.querySelectorAll<HTMLElement>('.section-snap-anchor')];
       const experience = sections[0];
-      if (!hero || !experience || anchors.length !== sections.length) {
+      if (!hero || !experience) {
         throw new Error('Homepage snap targets are missing.');
       }
+      const sectionRect = experience.getBoundingClientRect();
       return {
         rootSnapType: getComputedStyle(document.documentElement).scrollSnapType,
         heroAlign: getComputedStyle(hero).scrollSnapAlign,
         heroStop: getComputedStyle(hero).scrollSnapStop,
-        anchorAlignments: anchors.map((anchor) => getComputedStyle(anchor).scrollSnapAlign),
-        anchorStops: anchors.map((anchor) => getComputedStyle(anchor).scrollSnapStop),
-        experienceTargetY: experience.offsetTop + experience.offsetHeight / 2 - innerHeight / 2,
+        contentAlignments: sections.map((section) => getComputedStyle(section).scrollSnapAlign),
+        contentStops: sections.map((section) => getComputedStyle(section).scrollSnapStop),
+        experienceTargetY: sectionRect.top + window.scrollY,
         renderSaturation: document.querySelector<HTMLElement>('.ascii-stage')?.dataset.renderSaturation ?? '',
       };
     });
@@ -89,6 +89,12 @@ async function main(): Promise<void> {
     await page.mouse.wheel(0, 600);
     await page.waitForTimeout(900);
     const afterDownwardGesture = await page.evaluate(() => window.scrollY);
+    await page.mouse.wheel(0, 420);
+    await page.waitForTimeout(900);
+    const afterPartwayExperienceGesture = await page.evaluate(() => window.scrollY);
+    await page.mouse.wheel(0, -600);
+    await page.waitForTimeout(900);
+    const afterUpwardExperienceGesture = await page.evaluate(() => window.scrollY);
     await page.mouse.wheel(0, -600);
     await page.waitForTimeout(900);
     const afterUpwardGesture = await page.evaluate(() => window.scrollY);
@@ -117,13 +123,16 @@ async function main(): Promise<void> {
     const checks = {
       desktopUsesMandatoryVerticalSnap: desktopState.rootSnapType.includes('y mandatory'),
       heroSnapsToTop: desktopState.heroAlign === 'start' && desktopState.heroStop === 'always',
-      contentSnapsToCenter: desktopState.anchorAlignments.every((value) => value === 'center')
-        && desktopState.anchorStops.every((value) => value === 'always'),
+      contentSnapsToTop: desktopState.contentAlignments.every((value) => value === 'start')
+        && desktopState.contentStops.every((value) => value === 'always'),
       saturationStartsAtFull: Math.abs(saturationStates.top - 1) <= 0.01,
       saturationInterpolatesAtHalfway: Math.abs(saturationStates.halfway - 0.5) <= 0.03,
       saturationReachesZeroAtExperience: Math.abs(saturationStates.experience) <= 0.01,
       saturationRestoresAtTop: Math.abs(saturationStates.restoredTop - 1) <= 0.01,
-      downwardGestureCentersExperience: Math.abs(afterDownwardGesture - desktopState.experienceTargetY) <= 4,
+      downwardGestureSnapsExperienceTop: Math.abs(afterDownwardGesture - desktopState.experienceTargetY) <= 4,
+      partwayGestureStaysWithinExperience: afterPartwayExperienceGesture > afterDownwardGesture + 100
+        && afterPartwayExperienceGesture < afterDownwardGesture + 600,
+      upwardGestureReturnsToExperienceTop: Math.abs(afterUpwardExperienceGesture - desktopState.experienceTargetY) <= 4,
       upwardGestureReturnsToTop: afterUpwardGesture <= 1,
       mobileKeepsNativeScrolling: mobileSnapType === 'none'
         && mobileState.scrollY > 150
@@ -134,6 +143,8 @@ async function main(): Promise<void> {
     console.log(JSON.stringify({
       desktopState,
       afterDownwardGesture,
+      afterPartwayExperienceGesture,
+      afterUpwardExperienceGesture,
       afterUpwardGesture,
       saturationStates,
       mobileSnapType,

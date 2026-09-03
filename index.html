@@ -22,32 +22,67 @@
       <section class="homepage-hero" aria-labelledby="homepage-title">
         <div class="homepage-copy">
           <h1 id="homepage-title" class="homepage-title">Hello, I'm Milo</h1>
-          <p class="homepage-intro">I'm currently studying AI at UPenn. Most recently, I interned as a SWE/FDE at Pattern on the AI and Data Science Team, where built an MCP tool suite for Amazon listing SEO. Previously, I've helped OpenAI launch ChatGPT study mode, and worked on multi-agent systems at the PennNLP lab. I'm currently learning about RSI and long-horizon agents.</p>
+          <p class="homepage-intro">I'm currently a junior studying AI at UPenn. <br><br> Most recently, I interned as a SWE/FDE at Pattern on the AI and Data Science Team, where built an MCP tool suite for Amazon listing SEO. Previously, I've helped OpenAI launch ChatGPT study mode, and worked on multi-agent systems at the PennNLP lab. <br><br> I'm currently learning about RSI and long-horizon agents.</p>
         </div>
       </section>
       <section class="content-section" aria-labelledby="experience-heading">
-        <span class="section-snap-anchor" aria-hidden="true"></span>
         <h2 id="experience-heading">Experience</h2>
         <div class="entry-list">
           <article class="entry">
-            <h3>Pattern <span>— Software Engineering Intern</span></h3>
-            <p class="entry-meta">May 2026–Present</p>
-            <p>Mapped an end-to-end content workflow, co-developed platform-agnostic tools for an existing copy-generation pipeline, and led alpha testing from user feedback through product requirements and fixes.</p>
+            <h3>Pattern, <span>Software Engineering Intern – <em>Lehi, UT</em></span></h3>
+            <p class="entry-meta">May 2026 - Aug 2026</p>
+            <ul>
+              <li>Embedded as an Amazon copywriter and content manager to map end-to-end content workflow; presented findings to Data Science leadership and catalyzed team-wide pivot from maintaining legacy tools to building AI-infrastructure.</li>
+              <li>Developed 9 platform-agnostic tools exposing existing SEO optimization pipeline to Claude Cowork and an internal chatbot, cutting end-to-end turnaround from 4–8 weeks to 3–4 days.</li>
+              <li>Leading alpha-testing with ∼20 users, translating feedback into product requirements for PMs and shipping 10+ fixes across 3 repositories.</li>
+            </ul>
           </article>
           <article class="entry">
-            <h3>ChatGPT Lab, OpenAI <span>— Lab Member</span></h3>
-            <p class="entry-meta">May 2025–Present</p>
-            <p>Contributed feature testing to ChatGPT Study Mode and participated in technical panels on product strategy.</p>
+            <h3>Pensieve, <span>AI Engineer (contract) – <em>San Francisco, CA</em></span></h3>
+            <p class="entry-meta">Jan 2026</p>
+            <ul>
+              <li>Designed LLM-based pipeline for AI grading tool that extracted student names and IDs from scanned exams, enabling papers to be matched automatically to the correct student.</li>
+              <li>Implemented image pre-processing and fuzzy matching system based on Levenshtein Distance, achieving &gt;80% accuracy over hundreds of papers.</li>
+            </ul>
           </article>
           <article class="entry">
-            <h3>PennNLP, University of Pennsylvania <span>— Researcher &amp; Backend Lead</span></h3>
-            <p class="entry-meta">May–August 2025</p>
-            <p>Led a seven-person team building a multi-agent interaction platform, including a 5,000+ line Python backend, turn-based simulation environment, evaluation system, and interactive visualization layer.</p>
+            <h3>OpenAI, <span>ChatGPT Lab Member – <em>New York, NY</em></span></h3>
+            <p class="entry-meta">May 2025 - Present</p>
+            <ul>
+              <li>Contributed to ChatGPT Study Mode development, serving 700M+ weekly users through feature testing.</li>
+            </ul>
+          </article>
+          <article class="entry">
+            <h3>UPenn PennNLP, <span>Researcher and Backend Lead – <em>Philadelphia, PA</em></span></h3>
+            <p class="entry-meta">May 2025 - Aug 2025</p>
+            <ul>
+              <li>Led 7-person team in developing a multi-agent interaction platform, with a game-like, turn-based simulation environment for multi-agent interaction research.</li>
+              <li>Developed visualization layer in Godot Engine for interactive simulation monitoring and debugging.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+      <section class="content-section" aria-labelledby="projects-heading">
+        <h2 id="projects-heading">Projects</h2>
+        <div class="entry-list">
+          <article class="entry">
+            <h3><a href="https://github.com/MoodyMarshmallow/nano-gpt-speedrun" target="_blank" rel="noreferrer">NanoGPT Training Speedrun</a></h3>
+            <ul>
+              <li>Optimized training of nanoGPT on ∼900M tokens of FineWeb dataset for speed and accuracy.</li>
+              <li>Implemented and tested gated attention variants to an existing speedrun record.</li>
+              <li>Achieved 0.6% accuracy improvement.</li>
+            </ul>
+          </article>
+          <article class="entry">
+            <h3><a href="https://github.com/MoodyMarshmallow/CIS5190_Final_project" target="_blank" rel="noreferrer">Fintuning of DINOv3 for Image2GPS Task</a></h3>
+            <ul>
+              <li>Designed preprocessing pipeline cleaning ∼3,500 self-collected phone-photo metadata rows; delegating them to ∼90 contiguous regions via rasterization, k-mediods, and custom growth algorithm.</li>
+              <li>Fine-tuned DINOv3-S classifier using soft adjacent-region labels &amp; top-5 weighted-centroid decoding for final lat-long prediction. Achieved 37.27 m external-test error.</li>
+            </ul>
           </article>
         </div>
       </section>
       <section class="content-section" aria-labelledby="publications-heading">
-        <span class="section-snap-anchor" aria-hidden="true"></span>
         <h2 id="publications-heading">Publications</h2>
         <div class="entry-list">
           <article class="entry">
@@ -57,20 +92,6 @@
           <article class="entry">
             <h3><a href="https://doi.org/10.1109/ICMIMT59138.2023.10199334" target="_blank" rel="noreferrer">Machine Learning Regression to Predict Soil Moisture in Domestic Garden Environments</a></h3>
             <p class="entry-meta">May 2023</p>
-          </article>
-        </div>
-      </section>
-      <section class="content-section" aria-labelledby="projects-heading">
-        <span class="section-snap-anchor" aria-hidden="true"></span>
-        <h2 id="projects-heading">Projects</h2>
-        <div class="entry-list">
-          <article class="entry">
-            <h3><a href="https://github.com/MoodyMarshmallow/nano-gpt-speedrun" target="_blank" rel="noreferrer">NanoGPT Training Speedrun</a></h3>
-            <p>Optimized nanoGPT training on roughly 900 million FineWeb tokens, testing gated-attention variants and improving accuracy by 0.6%.</p>
-          </article>
-          <article class="entry">
-            <h3><a href="https://github.com/MoodyMarshmallow/CIS5190_Final_project" target="_blank" rel="noreferrer">Fine-tuning DINOv3 for Image2GPS</a></h3>
-            <p>Built a geolocation pipeline from roughly 3,500 self-collected phone photos and fine-tuned DINOv3-S to 37.27 m external-test error.</p>
           </article>
         </div>
       </section>

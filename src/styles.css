@@ -139,15 +139,7 @@ html.is-flower-dragging .ascii-stage { cursor: grabbing; }
   padding: clamp(5rem, 14vh, 10rem) clamp(1.25rem, 4vw, 4rem);
   box-sizing: border-box;
   pointer-events: auto;
-}
-
-.section-snap-anchor {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  scroll-snap-align: center;
+  scroll-snap-align: start;
   scroll-snap-stop: always;
 }
 
@@ -184,6 +176,8 @@ html.is-flower-dragging .ascii-stage { cursor: grabbing; }
 .entry h3 { margin: 0; font-size: clamp(1.15rem, 2vw, 1.55rem); font-weight: 300; line-height: 1.25; }
 .entry h3 span { font-weight: 300; }
 .entry p { margin: 0.65rem 0 0; color: rgba(242, 238, 231, 0.87); font-size: 0.875rem; line-height: 1.75; }
+.entry ul { margin: 0.65rem 0 0; padding-left: 1.35rem; color: rgba(242, 238, 231, 0.87); font-size: 0.875rem; font-weight: 300; line-height: 1.75; }
+.entry li { padding-left: 0.2rem; }
 .entry .entry-meta { margin-top: 0.35rem; color: rgba(242, 238, 231, 0.66); }
 .entry a { color: inherit; text-decoration-color: rgba(242, 238, 231, 0.45); text-underline-offset: 0.15em; }
 .entry a:hover, .entry a:focus-visible { text-decoration-color: currentColor; }
