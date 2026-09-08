@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>King protea</title>
+  <!-- Broad, flat bracts keep the flower legible at browser-tab sizes. -->
+  <g fill="#ad2048">
+    <path d="M32 54C17 47 14 25 20 8c12 8 18 25 12 46Z"/>
+    <path d="M32 54C47 47 50 25 44 8 32 16 26 33 32 54Z"/>
+    <path d="M32 53C21 42 22 16 32 3c10 13 11 39 0 50Z"/>
+  </g>
+  <g fill="#f24c75">
+    <path d="M31 56C13 51 5 34 5 16c17 5 28 21 26 40Z"/>
+    <path d="M33 56c18-5 26-22 26-40-17 5-28 21-26 40Z"/>
+    <path d="M32 54C18 43 14 26 17 14c14 9 21 25 15 40Z"/>
+    <path d="M32 54c14-11 18-28 15-40-14 9-21 25-15 40Z"/>
+  </g>
+  <path fill="#f3ddaf" d="m17 39 1-10 4 2 1-9 4 3 2-9 3 6 3-6 2 9 4-3 1 9 4-2 1 10-5 11H22Z"/>
+  <path fill="#d1ac75" d="m23 36 3-6 3 7 3-8 3 8 3-7 3 6-3 12H26Z"/>
+  <path fill="#d52b57" d="M3 34c14 1 25 10 29 22C18 57 8 48 3 34Zm58 0c-14 1-25 10-29 22 14 1 24-8 29-22Z"/>
+  <path fill="#ff7893" d="M16 43c7 1 12 5 16 10 4-5 9-9 16-10-2 11-7 17-16 18-9-1-14-7-16-18Z"/>
+  <path fill="#65846a" d="M28 59h8v4h-8z"/>
+</svg>
