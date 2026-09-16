@@ -1,5 +1,5 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { resolve, relative, sep } from 'node:path';
+import { resolve, relative, sep, posix } from 'node:path';
 import { parse, type DefaultTreeAdapterTypes } from 'parse5';
 import type { Plugin, ResolvedConfig } from 'vite';
 
@@ -68,6 +68,54 @@ export function discoverPosts(root: string): string[] {
     .sort();
 }
 
+export function titleToSlug(title: string): string {
+  const slug = title.normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/gu, '');
+  if (!slug) throw new Error(`Post title cannot produce a URL slug: ${JSON.stringify(title)}`);
+  return slug;
+}
+
+function postsWithRoutes(root: string) {
+  const posts = discoverPosts(root).map((path) => {
+    const metadata = extractPostMetadata(readFileSync(path, 'utf8'), path);
+    return { path, ...metadata, sourceRoute: relative(root, path).split(sep).slice(0, -1).join('/'), route: `writing/${titleToSlug(metadata.title)}` };
+  });
+  const routes = new Map<string, string>();
+  for (const post of posts) {
+    for (const route of new Set([post.sourceRoute, post.route])) {
+      const owner = routes.get(route);
+      if (owner && owner !== post.path) throw new Error(`Writing route collision at /${route}/ between ${owner} and ${post.path}. Change a post title or source folder.`);
+      routes.set(route, post.path);
+    }
+  }
+  return posts;
+}
+
+const encodedRoute = (route: string) => route.split('/').map(encodeURIComponent).join('/');
+
+// The source folder owns media even when the title changes the published URL.
+function rewriteRelativeUrls(html: string, sourceRoute: string, route: string): string {
+  const document = parse(html, { sourceCodeLocationInfo: true });
+  const edits: Array<{ start: number; end: number; content: string }> = [];
+  const visit = (node: Node) => {
+    if (isElement(node)) {
+      for (const attr of node.attrs) {
+        if (!['href', 'src', 'poster'].includes(attr.name) || !attr.value || /^(?:[a-z][a-z\d+.-]*:|\/|#|\?)/iu.test(attr.value)) continue;
+        const location = node.sourceCodeLocation?.attrs?.[attr.name];
+        if (!location) continue;
+        const target = new URL(attr.value, `https://writing.invalid/${encodedRoute(sourceRoute)}/`);
+        const path = posix.relative(`/${encodedRoute(route)}`, target.pathname) || './';
+        const url = path + (target.pathname.endsWith('/') && !path.endsWith('/') ? '/' : '') + target.search + target.hash;
+        edits.push({ start: location.startOffset, end: location.endOffset, content: `${attr.name}="${escapeHtml(url)}"` });
+      }
+    }
+    if ('childNodes' in node) node.childNodes.forEach(visit);
+  };
+  visit(document);
+  for (const edit of edits.sort((a, b) => b.start - a.start)) html = html.slice(0, edit.start) + edit.content + html.slice(edit.end);
+  return html;
+}
+
 const escapeHtml = (value: string) => value.replace(/[&<>"']/gu, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
 
 // Source locations let us replace generated content without reserializing authored HTML.
@@ -83,17 +131,38 @@ function replaceContents(html: string, replacements: Array<{ element: Element; c
 
 export function writingMetadataPlugin(): Plugin {
   let config: ResolvedConfig;
+  const routeUrl = (route: string) => (config.base === '' || config.base === './' ? './' : config.base) + encodedRoute(route) + '/';
   return {
     name: 'writing-metadata',
     config(userConfig) {
       const root = resolve(userConfig.root ?? process.cwd());
-      return { build: { rollupOptions: { input: [resolve(root, 'index.html'), ...discoverPosts(root)] } } };
+      return { build: { rollupOptions: { input: [resolve(root, 'index.html'), ...postsWithRoutes(root).map((post) => post.path)] } } };
     },
     configResolved(resolved) { config = resolved; },
     buildStart() {
       for (const path of discoverPosts(config.root)) this.addWatchFile(path);
     },
     configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        if (!['GET', 'HEAD'].includes(request.method ?? '')) return next();
+        try {
+          const url = new URL(request.url ?? '/', 'http://writing.invalid');
+          const base = server.config.base === './' || !server.config.base ? '/' : server.config.base;
+          if (!url.pathname.startsWith(base)) return next();
+          const path = decodeURIComponent(url.pathname.slice(base.length)).replace(/\/(?:index\.html)?$/u, '');
+          const posts = postsWithRoutes(server.config.root);
+          const post = posts.find((entry) => entry.route === path);
+          if (!post) return next();
+          if (!url.pathname.endsWith('/')) {
+            response.statusCode = 302;
+            response.setHeader('Location', base + encodedRoute(post.route) + '/' + url.search);
+            response.end();
+            return;
+          }
+          request.url = base + encodedRoute(post.sourceRoute) + '/index.html' + url.search;
+          next();
+        } catch (error) { next(error as Error); }
+      });
       server.watcher.add(resolve(server.config.root, 'writing'));
       const reloadPosts = (path: string) => {
         const local = relative(server.config.root, path).split(sep).join('/');
@@ -112,25 +181,39 @@ export function writingMetadataPlugin(): Plugin {
         if (filename === resolve(config.root, 'index.html')) {
           const list = find(document, (node) => attribute(node, 'data-writing-list') !== undefined);
           if (!list) throw new Error('Homepage needs a [data-writing-list] element.');
-          const posts = discoverPosts(config.root).map((path) => ({ path, ...extractPostMetadata(readFileSync(path, 'utf8'), path) }))
+          const posts = postsWithRoutes(config.root)
             .sort((a, b) => b.date.localeCompare(a.date) || a.path.localeCompare(b.path));
-          const base = config.base === '' || config.base === './' ? './' : config.base;
           const content = posts.map((post) => {
-            const url = base + relative(config.root, post.path).split(sep).slice(0, -1).map(encodeURIComponent).join('/') + '/';
+            const url = routeUrl(post.route);
             const dateLabel = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(post.date));
             return `\n          <article class="entry">\n            <h3><a href="${escapeHtml(url)}">${escapeHtml(post.title)}</a></h3>\n            <p class="entry-meta"><time datetime="${post.date}">${dateLabel}</time></p>\n          </article>`;
           }).join('') + '\n        ';
           return replaceContents(html, [{ element: list, content }]);
         }
-        if (!discoverPosts(config.root).includes(filename)) return html;
+        const routedPost = postsWithRoutes(config.root).find((post) => post.path === filename);
+        if (!routedPost) return html;
         const post = metadataFromDocument(document, filename);
         const readingTime = find(document, (node) => attribute(node, 'data-reading-time') !== undefined);
         const title = find(document, (node) => node.tagName === 'title');
         if (!readingTime || !title) throw new Error(`${filename}: Expected <title> and [data-reading-time] markers.`);
-        return replaceContents(html, [
+        return rewriteRelativeUrls(replaceContents(html, [
           { element: readingTime, content: `${post.readingMinutes} min read` },
           { element: title, content: `${escapeHtml(post.title)} · Milo Shan` },
-        ]);
+        ]), routedPost.sourceRoute, routedPost.route);
+      },
+    },
+    generateBundle: {
+      order: 'post',
+      handler(_options, bundle) {
+        for (const post of postsWithRoutes(config.root)) {
+          if (post.route === post.sourceRoute) continue;
+          const source = `${post.sourceRoute}/index.html`;
+          const asset = bundle[source];
+          if (!asset || asset.type !== 'asset') throw new Error(`Missing generated article HTML: ${source}`);
+          delete bundle[source];
+          asset.fileName = `${post.route}/index.html`;
+          bundle[asset.fileName] = asset;
+        }
       },
     },
   };

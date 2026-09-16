@@ -21,7 +21,7 @@
         <div class="writing-body">
 <p>Of the many things I did this summer, MakeADemo was probably the single task I spent the most time on. Which is funny, because my friend Anqi and I started working on it precisely because we <em>didn't</em> think it would take much time.</p>
 <figure>
-<a href="./we-thought-it-would-be-easy.png"><img src="/writing/my-summer-part-1-building-makeademo/we-thought-it-would-be-easy.png" alt="A banner reading: We do this not because it is easy, but because we thought it would be easy." width="1170" height="847" style="width: 419px" loading="lazy" decoding="async" /></a>
+<a href="./we-thought-it-would-be-easy.png"><img src="/writing/2026-summer-part-1-building-makeademo/we-thought-it-would-be-easy.png" alt="A banner reading: We do this not because it is easy, but because we thought it would be easy." width="1170" height="847" style="width: 419px" loading="lazy" decoding="async" /></a>
 </figure>
 <p>The reasoning was that, since agents were already pretty good at writing code, it shouldn't be too hard to get one to run an already working repo of some Typescript webapp, make some playwright script to click around on it, and edit it into a demo video...</p>
 <p>...right?</p>
@@ -29,18 +29,18 @@
 <h2>Part 1: Blissful Ignorance</h2>
 <p>In all our naïveté, we thought at the beginning that making an agent harness was overkill and that a simple, linear pipeline should do the job.</p>
 <figure>
-<a href="./initial-pipeline.png"><img src="/writing/my-summer-part-1-building-makeademo/initial-pipeline.png" alt="The initial linear pipeline: get repository information, run the repository in a sandbox, generate Playwright scripts, film footage, and composite the final video." width="3829" height="320" loading="lazy" decoding="async" /></a>
+<a href="./initial-pipeline.png"><img src="/writing/2026-summer-part-1-building-makeademo/initial-pipeline.png" alt="The initial linear pipeline: get repository information, run the repository in a sandbox, generate Playwright scripts, film footage, and composite the final video." width="3829" height="320" loading="lazy" decoding="async" /></a>
 <figcaption>Fig 1. The initial idea: Get some initial info, run the repo, write a script, and churn out the video.</figcaption>
 </figure>
 <p>We wanted to make this a website people could play around with, so we went with a typical TS stack. Playwright has a feature called screencast, which allows you to programmatically generate quality, annotated videos of your browser test execution directly from the browser rendering engine, and we also found Remotion, an OSS video editing suite that's designed to be programmatically controlled by agents. To host multiple pipelines simultaneously and securely, we used sandboxes from Daytona.</p>
 <p>Everything went quite smoothly, and soon, we had a somewhat working output from a simple example repo:</p>
 <figure>
-<video controls playsinline preload="metadata" aria-label="Early MakeADemo video of Conduit"><source src="/writing/my-summer-part-1-building-makeademo/conduit-early-demo.mp4" type="video/mp4" /><a href="./conduit-early-demo.mp4">Download the demo video</a>.</video>
+<video controls playsinline preload="metadata" aria-label="Early MakeADemo video of Conduit"><source src="/writing/2026-summer-part-1-building-makeademo/conduit-early-demo.mp4" type="video/mp4" /><a href="./conduit-early-demo.mp4">Download the demo video</a>.</video>
 <figcaption>Fig 2. It works!</figcaption>
 </figure>
 <h2>Part 2: Problems</h2>
 <figure>
-<a href="./problems-everywhere.png"><img src="/writing/my-summer-part-1-building-makeademo/problems-everywhere.png" alt="Toy Story meme reading: Problems. Problems everywhere." width="600" height="327" style="width: 396px" loading="lazy" decoding="async" /></a>
+<a href="./problems-everywhere.png"><img src="/writing/2026-summer-part-1-building-makeademo/problems-everywhere.png" alt="Toy Story meme reading: Problems. Problems everywhere." width="600" height="327" style="width: 396px" loading="lazy" decoding="async" /></a>
 </figure>
 <p>After the initial success, we built out a benchmark of repos to test the system on, and here's where the problems started.</p>
 <h3>1. Problems with a linear pipeline</h3>
@@ -50,7 +50,7 @@
 <h3>2. Reward hacking</h3>
 <p>After building out this architectural change. We finally saw our first new outputs. I was thrilled to see the video file appear, but all that excitment quickly went away when I saw the demo video.</p>
 <figure>
-<a href="./reward-hacking-comparison.png"><img src="/writing/my-summer-part-1-building-makeademo/reward-hacking-comparison.png" alt="The generated Directus demo above the official Directus interface, showing that the agent built a different frontend." width="1333" height="1557" loading="lazy" decoding="async" /></a>
+<a href="./reward-hacking-comparison.png"><img src="/writing/2026-summer-part-1-building-makeademo/reward-hacking-comparison.png" alt="The generated Directus demo above the official Directus interface, showing that the agent built a different frontend." width="1333" height="1557" loading="lazy" decoding="async" /></a>
 <figcaption>Fig 3. On the top is a screenshot of the video demo. On the bottom is a screenshot of the official UI. Something's clearly not right...</figcaption>
 </figure>
 <p>Turns out that a really simple way an agent could achieve it's goal of having a functioning app to demo was to just make an entirely new frontend! This is obviously not what we intended, so we set out to make our pipeline stage validation checks better. We ended up using an LLM as a judge: The footage capture phase uses a separate judge agent that reviews the footage and code and ensures what's being demoed is actually the product itself.</p>
@@ -60,11 +60,11 @@
 <p>Repos had broken dependencies, unspecified configuration steps, complicated APIs that were difficult to mock, and don't get me started about monorepos with multiple frontends (people put their company website and main product in the <em>same repo</em>???).</p>
 <p>So, with a heavy heart, I decided to sunset the project. I think I gave project a pretty good shot, but the reality is that the problem space is much too ambiguous for a normal agent harness.</p>
 <figure>
-<a href="./final-agent-workflow.png"><img src="/writing/my-summer-part-1-building-makeademo/final-agent-workflow.png" alt="The final MakeADemo workflow, with validation and repair loops for running the app, writing the demo script, filming footage, and building the video." width="2640" height="3540" style="width: 75%" loading="lazy" decoding="async" /></a>
+<a href="./final-agent-workflow.png"><img src="/writing/2026-summer-part-1-building-makeademo/final-agent-workflow.png" alt="The final MakeADemo workflow, with validation and repair loops for running the app, writing the demo script, filming footage, and building the video." width="2640" height="3540" style="width: 75%" loading="lazy" decoding="async" /></a>
 <figcaption>Fig 4. The final state of MakeADemo. This is quite simplified. The actual code is unfortunately a lot more complicated...</figcaption>
 </figure>
 <figure>
-<video controls playsinline preload="metadata" aria-label="MakeADemo video of Excalidraw"><source src="/writing/my-summer-part-1-building-makeademo/excalidraw-demo.mp4" type="video/mp4" /><a href="./excalidraw-demo.mp4">Download the demo video</a>.</video>
+<video controls playsinline preload="metadata" aria-label="MakeADemo video of Excalidraw"><source src="/writing/2026-summer-part-1-building-makeademo/excalidraw-demo.mp4" type="video/mp4" /><a href="./excalidraw-demo.mp4">Download the demo video</a>.</video>
 <figcaption>Fig 5. When the system works, it's super cool! Excalidraw didn't need a backend to run, so our agent did quite well here!</figcaption>
 </figure>
 <h2>Part 3: The Journey Continues</h2>

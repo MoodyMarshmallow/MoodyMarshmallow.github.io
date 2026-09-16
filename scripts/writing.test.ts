@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { mkdtemp, mkdir, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { build } from 'vite';
+import { build, createServer } from 'vite';
 import { extractPostMetadata, writingMetadataPlugin } from '../plugins/writingMetadata';
 
 const fixtures: string[] = [];
@@ -48,27 +48,33 @@ describe('writing metadata', () => {
     const savePost = async (slug: string, title: string, date: string, count: number) => {
       const directory = join(root, 'writing', slug);
       await mkdir(directory, { recursive: true });
-      await writeFile(join(directory, 'index.html'), post(title, date, `<p>${words(count)}</p>`));
+      await mkdir(join(root, 'public', 'writing', slug), { recursive: true });
+      await writeFile(join(root, 'public', 'writing', slug, 'demo.mp4'), 'video fixture');
+      await writeFile(join(directory, 'index.html'), post(title, date, `<p>${words(count)}</p><video><source src="/writing/${slug}/demo.mp4"><a href="./demo.mp4">Download video</a></video>`));
     };
     await savePost('older', 'Older post', '2026-08-01', 225);
     await savePost('latest', 'Latest &amp; greatest', '2026-09-15', 226);
     const generate = async (base: string) => {
-      await build({ root, configFile: false, base, publicDir: false, logLevel: 'silent', plugins: [writingMetadataPlugin()] });
+      await build({ root, configFile: false, base, logLevel: 'silent', plugins: [writingMetadataPlugin()] });
       return readFile(join(root, 'dist', 'index.html'), 'utf8');
     };
-    for (const base of ['/', '/Personal-Website/']) {
+    for (const base of ['/', '/Personal-Website/', './']) {
       const home = await generate(base);
       expect(home).toContain('Latest &amp; greatest');
       expect(home).toContain('August 2026');
       expect(home).toContain('September 2026');
       expect(home.indexOf('Latest &amp; greatest')).toBeLessThan(home.indexOf('Older post'));
-      const href = home.match(/href="([^"]*writing\/latest\/[^"\s]*)"/)?.[1];
+      const href = home.match(/href="([^"]*writing\/latest-greatest\/[^"\s]*)"/)?.[1];
       expect(href).toBeDefined();
-      expect(new URL(href!, `https://example.test${base}`).pathname).toBe(`${base}writing/latest/`);
-      const latest = await readFile(join(root, 'dist/writing/latest/index.html'), 'utf8');
+      const deployedBase = base === './' ? '/nested/' : base;
+      expect(new URL(href!, `https://example.test${deployedBase}`).pathname).toBe(`${deployedBase}writing/latest-greatest/`);
+      const latest = await readFile(join(root, 'dist/writing/latest-greatest/index.html'), 'utf8');
       expect(latest).toContain('2 min read');
       expect(latest).not.toContain('Stale browser title');
       expect(latest).toContain('<title>Latest &amp; greatest');
+      const download = latest.match(/href="([^"]*demo\.mp4)"/)?.[1];
+      expect(download).toBeDefined();
+      expect(new URL(download!, `https://example.test${deployedBase}writing/latest-greatest/`).pathname).toBe(`${deployedBase}writing/latest/demo.mp4`);
     }
     await savePost('latest', 'Revised title', '2026-07-01', 900);
     await savePost('new-post', 'Newly added post', '2026-10-01', 100);
@@ -77,7 +83,46 @@ describe('writing metadata', () => {
     expect(updatedHome).not.toContain('Latest &amp; greatest');
     expect(updatedHome.indexOf('Newly added post')).toBeLessThan(updatedHome.indexOf('Older post'));
     expect(updatedHome.indexOf('Older post')).toBeLessThan(updatedHome.indexOf('Revised title'));
-    expect(await readFile(join(root, 'dist/writing/latest/index.html'), 'utf8')).toContain('4 min read');
-    expect(await readFile(join(root, 'dist/writing/new-post/index.html'), 'utf8')).toContain('1 min read');
+    expect(updatedHome).toContain('writing/revised-title/');
+    expect(updatedHome).not.toContain('writing/latest-greatest/');
+    expect(await readFile(join(root, 'dist/writing/revised-title/index.html'), 'utf8')).toContain('4 min read');
+    expect(await readFile(join(root, 'dist/writing/newly-added-post/index.html'), 'utf8')).toContain('1 min read');
+  });
+
+  test('serves title-derived routes in development after a title edit', async () => {
+    const root = await realpath(await mkdtemp(join(tmpdir(), 'website-writing-dev-')));
+    fixtures.push(root);
+    await writeFile(join(root, 'index.html'), '<html><div data-writing-list></div></html>');
+    const source = join(root, 'writing', 'source-folder');
+    await mkdir(source, { recursive: true });
+    await writeFile(join(source, 'index.html'), post('Original title', '2026-09-15', '<p>Article content</p>'));
+    const server = await createServer({ root, configFile: false, base: '/preview/', logLevel: 'silent', plugins: [writingMetadataPlugin()], server: { host: '127.0.0.1', port: 42873, strictPort: true } });
+    try {
+      await server.listen();
+      const address = server.httpServer!.address();
+      if (!address || typeof address === 'string') throw new Error('Expected a local TCP server');
+      const url = `http://127.0.0.1:${address.port}/preview/`;
+      const original = await fetch(`${url}writing/original-title/`);
+      expect(original.status).toBe(200);
+      expect(await original.text()).toContain('<title>Original title · Milo Shan</title>');
+      await writeFile(join(source, 'index.html'), post('Renamed title', '2026-09-15', '<p>Article content</p>'));
+      const renamed = await fetch(`${url}writing/renamed-title/`);
+      expect(renamed.status).toBe(200);
+      expect(await renamed.text()).toContain('<title>Renamed title · Milo Shan</title>');
+      expect(await (await fetch(url)).text()).toContain('/preview/writing/renamed-title/');
+    } finally {
+      await server.close();
+    }
+  });
+
+  test('rejects posts whose titles generate the same URL', async () => {
+    const root = await realpath(await mkdtemp(join(tmpdir(), 'website-writing-collision-')));
+    fixtures.push(root);
+    await writeFile(join(root, 'index.html'), '<html><div data-writing-list></div></html>');
+    for (const [folder, title] of [['first', 'Same Title!'], ['second', 'Same title']]) {
+      await mkdir(join(root, 'writing', folder), { recursive: true });
+      await writeFile(join(root, 'writing', folder, 'index.html'), post(title, '2026-09-15', '<p>Content</p>'));
+    }
+    await expect(build({ root, configFile: false, logLevel: 'silent', plugins: [writingMetadataPlugin()] })).rejects.toThrow(/collision|duplicate|same.*URL/i);
   });
 });
