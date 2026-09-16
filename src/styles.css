@@ -1,3 +1,5 @@
+@import './backLinks.css';
+
 :root {
   color-scheme: dark;
   font-family: "Roboto Mono Local", monospace;
@@ -87,10 +89,13 @@ html.is-flower-dragging .ascii-stage { cursor: grabbing; }
 }
 
 .homepage-hero {
+  --hero-inset: clamp(1.25rem, 4vw, 4rem);
+  --copy-inset: clamp(1rem, 1.75vw, 1.35rem);
+  position: relative;
   display: flex;
   align-items: flex-start;
   min-height: 100svh;
-  padding: clamp(1.5rem, 4vh, 2.5rem) clamp(1.25rem, 4vw, 4rem) 0;
+  padding: clamp(1.5rem, 4vh, 2.5rem) var(--hero-inset) 0;
   box-sizing: border-box;
   scroll-snap-align: start;
   scroll-snap-stop: always;
@@ -99,7 +104,7 @@ html.is-flower-dragging .ascii-stage { cursor: grabbing; }
 .homepage-copy {
   width: min(100%, 40rem);
   pointer-events: auto;
-  padding: clamp(0.9rem, 1.5vw, 1.15rem) clamp(1rem, 1.75vw, 1.35rem) clamp(1rem, 1.6vw, 1.25rem);
+  padding: clamp(0.9rem, 1.5vw, 1.15rem) var(--copy-inset) clamp(1rem, 1.6vw, 1.25rem);
   background: linear-gradient(90deg,
     rgba(0, 0, 0, 0.72) 0%,
     rgba(0, 0, 0, 0.72) 50%,
@@ -132,15 +137,95 @@ html.is-flower-dragging .ascii-stage { cursor: grabbing; }
   color: rgba(242, 238, 231, 0.9);
 }
 
+.homepage-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.5rem 4ch;
+  max-width: 38rem;
+  margin-top: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: rgba(242, 238, 231, 0.9);
+}
+
+.homepage-nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.4ch;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.homepage-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0.4ch;
+  right: 0.4ch;
+  bottom: calc(50% - 0.65em);
+  height: 1px;
+  background: rgba(242, 238, 231, 0.45);
+  pointer-events: none;
+}
+
+.homepage-nav a:is(:hover, :focus-visible)::after {
+  left: 0;
+  right: 0;
+  background: currentColor;
+}
+
+.homepage-nav a:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
+}
+
+.homepage-nav__bracket {
+  display: inline-block;
+}
+
+.homepage-nav a:is(:hover, :focus-visible) .homepage-nav__bracket:first-child {
+  transform: translateX(-0.4ch);
+}
+
+.homepage-nav a:is(:hover, :focus-visible) .homepage-nav__bracket:last-child {
+  transform: translateX(0.4ch);
+}
+
 .content-section {
+  display: flex;
+  flex-direction: column;
   position: relative;
   width: min(100%, 72rem);
-  min-height: 92svh;
+  min-height: 100svh;
   padding: clamp(5rem, 14vh, 10rem) clamp(1.25rem, 4vw, 4rem);
   box-sizing: border-box;
   pointer-events: auto;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+}
+
+.back-to-top {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-bottom: 0.5rem;
+  color: rgba(242, 238, 231, 0.75);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 18px rgba(0, 0, 0, 0.65);
+}
+
+.back-to-top:is(:hover, :focus-visible) {
+  color: #f2eee7;
+}
+
+.back-to-top:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
 }
 
 .content-section h2 {
@@ -155,7 +240,9 @@ html.is-flower-dragging .ascii-stage { cursor: grabbing; }
 }
 
 .entry-list {
+  flex: 1;
   display: grid;
+  align-content: start;
   gap: clamp(3rem, 8vh, 6rem);
   max-width: 52rem;
   padding: clamp(1rem, 1.5vw, 1.25rem) clamp(1rem, 1.75vw, 1.35rem);
@@ -181,6 +268,32 @@ html.is-flower-dragging .ascii-stage { cursor: grabbing; }
 .entry .entry-meta { margin-top: 0.35rem; color: rgba(242, 238, 231, 0.66); }
 .entry a { color: inherit; text-decoration-color: rgba(242, 238, 231, 0.45); text-underline-offset: 0.15em; }
 .entry a:hover, .entry a:focus-visible { text-decoration-color: currentColor; }
+
+.social-links {
+  position: absolute;
+  pointer-events: auto;
+  bottom: clamp(1rem, 3vh, 2rem);
+  /* Align the visible icon, accounting for its centered 44px hit target. */
+  left: calc(var(--hero-inset) + var(--copy-inset) - 11px);
+  z-index: 3;
+  display: flex;
+  gap: 0.375rem;
+  color: #666;
+}
+
+.social-links a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.social-links a:hover,
+.social-links a:focus-visible { color: #aaa; }
+.social-links a:focus-visible { outline: 1px solid currentColor; outline-offset: 1px; }
+.social-links svg { display: block; width: 22px; height: 22px; }
 
 .viewport-help {
   position: fixed;

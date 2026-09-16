@@ -10,6 +10,9 @@ import type { ScreenBounds } from './flowerInteractionBounds';
 import { loadProtea } from './model/loadProtea';
 import publishedHomePresetJson from './publishedHomePreset.json';
 import './styles.css';
+import { initSectionNavigation } from './sectionNavigation';
+
+initSectionNavigation();
 
 const stage = document.querySelector('#ascii-stage') as HTMLElement;
 const viewportHelp = document.querySelector('.viewport-help') as HTMLElement | null;
