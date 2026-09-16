@@ -129,8 +129,61 @@ function replaceContents(html: string, replacements: Array<{ element: Element; c
   return html;
 }
 
-export function writingMetadataPlugin(): Plugin {
+function addSocialPreview(html: string, post: ReturnType<typeof postsWithRoutes>[number], publicBase: URL): string {
+  const document = parse(html, { sourceCodeLocationInfo: true });
+  const head = find(document, (node) => node.tagName === 'head');
+  if (!head?.sourceCodeLocation?.endTag) throw new Error(`${post.path}: Expected an explicit </head> for social metadata.`);
+  const description = find(head, (node) => node.tagName === 'meta' && attribute(node, 'name')?.toLowerCase() === 'description');
+  const body = find(document, (node) => !!hasClass(node, 'writing-body'));
+  const image = body && find(body, (node) => node.tagName === 'img');
+  const src = image && attribute(image, 'src');
+  let imageUrl: URL | undefined;
+  if (src) {
+    // Leading-slash assets are site-root assets in Vite, including project-base builds.
+    const target = src.startsWith('/') && !src.startsWith('//')
+      ? new URL(src.slice(1), publicBase)
+      : new URL(src, new URL(`${encodedRoute(post.sourceRoute)}/`, publicBase));
+    if (target.protocol === 'https:') imageUrl = target;
+  }
+  const canonical = new URL(`${encodedRoute(post.route)}/`, publicBase).href;
+  const tags = [
+    `<link rel="canonical" href="${escapeHtml(canonical)}">`,
+    `<meta property="og:type" content="article">`,
+    `<meta property="og:title" content="${escapeHtml(post.title)}">`,
+    `<meta property="og:url" content="${escapeHtml(canonical)}">`,
+    `<meta name="twitter:card" content="${imageUrl ? 'summary_large_image' : 'summary'}">`,
+    `<meta name="twitter:title" content="${escapeHtml(post.title)}">`,
+  ];
+  const descriptionText = description && attribute(description, 'content');
+  if (descriptionText) {
+    tags.push(`<meta property="og:description" content="${escapeHtml(descriptionText)}">`, `<meta name="twitter:description" content="${escapeHtml(descriptionText)}">`);
+  }
+  if (imageUrl) {
+    const alt = escapeHtml(attribute(image!, 'alt') ?? '');
+    tags.push(`<meta property="og:image" content="${escapeHtml(imageUrl.href)}">`, `<meta property="og:image:alt" content="${alt}">`, `<meta name="twitter:image" content="${escapeHtml(imageUrl.href)}">`, `<meta name="twitter:image:alt" content="${alt}">`);
+  }
+  const edits = [{ start: head.sourceCodeLocation.endTag.startOffset, end: head.sourceCodeLocation.endTag.startOffset, content: `  ${tags.join('\n    ')}\n  ` }];
+  for (const node of head.childNodes) {
+    if (!isElement(node)) continue;
+    const socialMeta = node.tagName === 'meta' && [attribute(node, 'property'), attribute(node, 'name')].some((name) => /^(?:og|twitter):/iu.test(name ?? ''));
+    const canonicalLink = node.tagName === 'link' && attribute(node, 'rel')?.toLowerCase().split(/\s+/u).includes('canonical');
+    const location = node.sourceCodeLocation;
+    if ((socialMeta || canonicalLink) && location) edits.push({ start: location.startOffset, end: location.endOffset, content: '' });
+  }
+  for (const edit of edits.sort((a, b) => b.start - a.start)) html = html.slice(0, edit.start) + edit.content + html.slice(edit.end);
+  return html;
+}
+
+export interface WritingMetadataOptions {
+  /** Public deployment URL; a pathname supplies the base when Vite uses './'. */
+  siteUrl?: string;
+}
+
+export function writingMetadataPlugin({ siteUrl = 'https://moodymarshmallow.github.io/' }: WritingMetadataOptions = {}): Plugin {
   let config: ResolvedConfig;
+  const site = new URL(siteUrl);
+  if (site.protocol !== 'https:' || site.username || site.password || site.search || site.hash) throw new Error('Writing metadata siteUrl must be a public HTTPS URL without credentials, query, or fragment.');
+  if (!site.pathname.endsWith('/')) site.pathname += '/';
   const routeUrl = (route: string) => (config.base === '' || config.base === './' ? './' : config.base) + encodedRoute(route) + '/';
   return {
     name: 'writing-metadata',
@@ -196,10 +249,12 @@ export function writingMetadataPlugin(): Plugin {
         const readingTime = find(document, (node) => attribute(node, 'data-reading-time') !== undefined);
         const title = find(document, (node) => node.tagName === 'title');
         if (!readingTime || !title) throw new Error(`${filename}: Expected <title> and [data-reading-time] markers.`);
-        return rewriteRelativeUrls(replaceContents(html, [
+        const updated = replaceContents(html, [
           { element: readingTime, content: `${post.readingMinutes} min read` },
           { element: title, content: `${escapeHtml(post.title)} · Milo Shan` },
-        ]), routedPost.sourceRoute, routedPost.route);
+        ]);
+        const publicBase = new URL(config.base === '' || config.base === './' ? './' : config.base, site);
+        return rewriteRelativeUrls(addSocialPreview(updated, routedPost, publicBase), routedPost.sourceRoute, routedPost.route);
       },
     },
     generateBundle: {

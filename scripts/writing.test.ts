@@ -3,9 +3,23 @@ import { mkdtemp, mkdir, readFile, realpath, rm, writeFile } from 'node:fs/promi
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build, createServer } from 'vite';
+import { parse, type DefaultTreeAdapterTypes } from 'parse5';
 import { extractPostMetadata, writingMetadataPlugin } from '../plugins/writingMetadata';
 
 const fixtures: string[] = [];
+function previewTags(html: string) {
+  const values = new Map<string, string[]>();
+  const visit = (node: DefaultTreeAdapterTypes.Node) => {
+    if ('tagName' in node) {
+      const attrs = Object.fromEntries(node.attrs.map(({ name, value }) => [name, value]));
+      const key = node.tagName === 'meta' ? attrs.property ?? attrs.name : node.tagName === 'link' && attrs.rel === 'canonical' ? 'canonical' : undefined;
+      if (key) values.set(key, [...values.get(key) ?? [], attrs.content ?? attrs.href]);
+    }
+    if ('childNodes' in node) node.childNodes.forEach(visit);
+  };
+  visit(parse(html));
+  return values;
+}
 const words = (count: number) => Array(count).fill('word').join(' ');
 const post = (title: string, date: string, body: string) => `<!doctype html>
 <html><head><title>Stale browser title</title></head><body>
@@ -113,6 +127,49 @@ describe('writing metadata', () => {
     } finally {
       await server.close();
     }
+  });
+
+  test('generates static sharing cards from the first article image and current title', async () => {
+    const root = await realpath(await mkdtemp(join(tmpdir(), 'website-writing-preview-')));
+    fixtures.push(root);
+    await writeFile(join(root, 'index.html'), '<html><div data-writing-list></div></html>');
+    const source = join(root, 'writing', 'source-folder');
+    await mkdir(source, { recursive: true });
+    const media = join(root, 'public', 'writing', 'source-folder');
+    await mkdir(media, { recursive: true });
+    await writeFile(join(media, 'first.png'), 'image fixture');
+    await writeFile(join(media, 'second.png'), 'image fixture');
+    const save = async (body: string) => {
+      const html = post('Share &amp; Learn', '2026-09-15', body).replace('</head>', '<meta name="description" content="A &quot;quoted&quot; description &amp; more"><meta property="og:image" content="https://stale.test/old.png"><meta name="twitter:card" content="summary"><link rel="canonical" href="https://stale.test/old/"></head>');
+      await writeFile(join(source, 'index.html'), html);
+    };
+    for (const base of ['/', '/project/', './']) {
+      const siteUrl = base === './' ? 'https://example.test/nested/' : 'https://example.test/';
+      const prefix = base === './' ? '/nested/' : base;
+      for (const imageSrc of ['./first.png', '/writing/source-folder/first.png']) {
+        await save(`<p>Article</p><img src="${imageSrc}" alt="First &amp; best"><img src="./second.png" alt="Second">`);
+        await build({ root, configFile: false, base, logLevel: 'silent', plugins: [writingMetadataPlugin({ siteUrl })] });
+        const tags = previewTags(await readFile(join(root, 'dist/writing/share-learn/index.html'), 'utf8'));
+        expect(tags.get('og:type')).toEqual(['article']);
+        expect(tags.get('og:title')).toEqual(['Share & Learn']);
+        expect(tags.get('twitter:title')).toEqual(['Share & Learn']);
+        expect(tags.get('og:description')).toEqual(['A "quoted" description & more']);
+        expect(tags.get('twitter:description')).toEqual(['A "quoted" description & more']);
+        expect(tags.get('og:url')).toEqual([`https://example.test${prefix}writing/share-learn/`]);
+        expect(tags.get('canonical')).toEqual(tags.get('og:url'));
+        expect(tags.get('og:image')).toEqual([`https://example.test${prefix}writing/source-folder/first.png`]);
+        expect(tags.get('twitter:image')).toEqual(tags.get('og:image'));
+        expect(tags.get('og:image:alt')).toEqual(['First & best']);
+        expect(tags.get('twitter:image:alt')).toEqual(['First & best']);
+        expect(tags.get('twitter:card')).toEqual(['summary_large_image']);
+      }
+    }
+    await save('<p>No image in this post</p>');
+    await build({ root, configFile: false, logLevel: 'silent', plugins: [writingMetadataPlugin()] });
+    const noImage = previewTags(await readFile(join(root, 'dist/writing/share-learn/index.html'), 'utf8'));
+    expect(noImage.get('twitter:card')).toEqual(['summary']);
+    expect(noImage.has('og:image')).toBe(false);
+    expect(noImage.has('twitter:image')).toBe(false);
   });
 
   test('rejects posts whose titles generate the same URL', async () => {
