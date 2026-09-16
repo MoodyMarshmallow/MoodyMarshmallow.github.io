@@ -147,7 +147,7 @@ describe('writing metadata', () => {
       const siteUrl = base === './' ? 'https://example.test/nested/' : 'https://example.test/';
       const prefix = base === './' ? '/nested/' : base;
       for (const imageSrc of ['./first.png', '/writing/source-folder/first.png']) {
-        await save(`<p>Article</p><img src="${imageSrc}" alt="First &amp; best"><img src="./second.png" alt="Second">`);
+        await save(`<p>Article</p><img src="${imageSrc}" alt="First &amp; best" width="1170" height="847"><img src="./second.png" alt="Second" width="400" height="200">`);
         await build({ root, configFile: false, base, logLevel: 'silent', plugins: [writingMetadataPlugin({ siteUrl })] });
         const tags = previewTags(await readFile(join(root, 'dist/writing/share-learn/index.html'), 'utf8'));
         expect(tags.get('og:type')).toEqual(['article']);
@@ -160,6 +160,8 @@ describe('writing metadata', () => {
         expect(tags.get('og:image')).toEqual([`https://example.test${prefix}writing/source-folder/first.png`]);
         expect(tags.get('twitter:image')).toEqual(tags.get('og:image'));
         expect(tags.get('og:image:alt')).toEqual(['First & best']);
+        expect(tags.get('og:image:width')).toEqual(['1170']);
+        expect(tags.get('og:image:height')).toEqual(['847']);
         expect(tags.get('twitter:image:alt')).toEqual(['First & best']);
         expect(tags.get('twitter:card')).toEqual(['summary_large_image']);
       }
@@ -170,6 +172,14 @@ describe('writing metadata', () => {
     expect(noImage.get('twitter:card')).toEqual(['summary']);
     expect(noImage.has('og:image')).toBe(false);
     expect(noImage.has('twitter:image')).toBe(false);
+    expect(noImage.has('og:image:width')).toBe(false);
+    expect(noImage.has('og:image:height')).toBe(false);
+    await save('<img src="/writing/source-folder/first.png" width="100%" height="0">');
+    await build({ root, configFile: false, logLevel: 'silent', plugins: [writingMetadataPlugin()] });
+    const invalidSize = previewTags(await readFile(join(root, 'dist/writing/share-learn/index.html'), 'utf8'));
+    expect(invalidSize.has('og:image')).toBe(true);
+    expect(invalidSize.has('og:image:width')).toBe(false);
+    expect(invalidSize.has('og:image:height')).toBe(false);
   });
 
   test('rejects posts whose titles generate the same URL', async () => {

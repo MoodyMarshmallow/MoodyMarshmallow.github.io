@@ -161,6 +161,12 @@ function addSocialPreview(html: string, post: ReturnType<typeof postsWithRoutes>
   if (imageUrl) {
     const alt = escapeHtml(attribute(image!, 'alt') ?? '');
     tags.push(`<meta property="og:image" content="${escapeHtml(imageUrl.href)}">`, `<meta property="og:image:alt" content="${alt}">`, `<meta name="twitter:image" content="${escapeHtml(imageUrl.href)}">`, `<meta name="twitter:image:alt" content="${alt}">`);
+    for (const dimension of ['width', 'height']) {
+      const value = attribute(image!, dimension)?.trim();
+      if (value && /^\d+$/u.test(value) && Number.isSafeInteger(Number(value)) && Number(value) > 0) {
+        tags.push(`<meta property="og:image:${dimension}" content="${Number(value)}">`);
+      }
+    }
   }
   const edits = [{ start: head.sourceCodeLocation.endTag.startOffset, end: head.sourceCodeLocation.endTag.startOffset, content: `  ${tags.join('\n    ')}\n  ` }];
   for (const node of head.childNodes) {
