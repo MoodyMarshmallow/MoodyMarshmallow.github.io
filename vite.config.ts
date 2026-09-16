@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
 import { normalizeAsciiPreset } from './src/asciiPreset';
+import { writingMetadataPlugin } from './plugins/writingMetadata';
 
 const publishedPresetPath = fileURLToPath(new URL('./src/publishedHomePreset.json', import.meta.url));
 const temporaryPresetPath = `${publishedPresetPath}.tmp`;
@@ -56,12 +57,5 @@ function publishedPresetPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [publishedPresetPlugin()],
-  build: {
-    rollupOptions: {
-      input: {
-        home: fileURLToPath(new URL('./index.html', import.meta.url)),
-      },
-    },
-  },
+  plugins: [publishedPresetPlugin(), writingMetadataPlugin()],
 });

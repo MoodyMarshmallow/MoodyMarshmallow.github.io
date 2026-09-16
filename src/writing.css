@@ -1,0 +1,85 @@
+@import './backLinks.css';
+
+@font-face {
+  font-family: "Roboto Mono Local";
+  src: url("/fonts/RobotoMono%5Bwght%5D.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display Local";
+  src: url("/fonts/PlayfairDisplay%5Bwght%5D.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  background: #000;
+  color: #f2eee7;
+  font-family: "Roboto Mono Local", monospace;
+  font-weight: 300;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #000;
+}
+
+::selection { background: #f2eee7; color: #000; }
+
+.writing-page {
+  width: min(100%, 48rem);
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 5rem) clamp(1.5rem, 5vw, 3rem) 5rem;
+  box-sizing: border-box;
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  overflow-wrap: break-word;
+}
+
+.writing-page a {
+  color: inherit;
+  text-decoration-color: rgba(242, 238, 231, 0.45);
+  text-underline-offset: 0.2em;
+}
+
+.writing-page a:hover,
+.writing-page a:focus-visible { text-decoration-color: currentColor; }
+.writing-page a:focus-visible { outline: 2px solid #f2eee7; outline-offset: 5px; }
+.writing-page nav { font-size: 0.875rem; }
+.writing-header { margin: 3.5rem 0; }
+
+.writing-header h1,
+.writing-body h2 {
+  font-family: "Playfair Display Local", Georgia, "Times New Roman", serif;
+  font-style: normal;
+  font-weight: 450;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.writing-header h1 { margin: 0; font-size: clamp(2.2rem, 5.5vw, 3.8rem); }
+.writing-reading-time { margin: 1.25rem 0 0; color: rgba(242, 238, 231, 0.72); font-size: 0.875rem; }
+.writing-date { margin: 0.4rem 0 0; color: rgba(242, 238, 231, 0.66); font-size: 0.875rem; }
+.writing-body { color: rgba(242, 238, 231, 0.9); }
+.writing-body h2 { margin: 3.5rem 0 1.5rem; font-size: clamp(1.8rem, 4vw, 2.5rem); color: #f2eee7; }
+.writing-body h3 { margin: 2.5rem 0 1rem; font-size: 1.1rem; font-weight: 500; line-height: 1.5; }
+.writing-body p { margin: 1.25rem 0; }
+.writing-body strong { font-weight: 600; }
+.writing-body figure { margin: 2.5rem 0; }
+.writing-body img,
+.writing-body video { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+.writing-body video {
+  width: 100%;
+  /* Soften bright demo screens against the article's black background. */
+  filter: brightness(0.75);
+}
+.writing-body figcaption { max-width: 60ch; margin: 0.875rem auto 0; text-align: center; font-size: 0.8rem; line-height: 1.65; color: rgba(242, 238, 231, 0.66); }
+.writing-body hr { margin: 3rem 0; border: 0; border-top: 1px solid rgba(242, 238, 231, 0.2); }
+.writing-footer { margin-top: 3.5rem; font-size: 0.875rem; }

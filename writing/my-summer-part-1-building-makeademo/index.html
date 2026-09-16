@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2" />
+    <link rel="stylesheet" href="/src/writing.css" />
+    <meta name="description" content="Lessons from building MakeADemo: agent harnesses, reward hacking, generalization, and software security." />
+    <meta name="author" content="Milo Shan" />
+    <title><!-- Generated from #post-title by Vite. --></title>
+  </head>
+  <body>
+    <main class="writing-page">
+      <nav aria-label="Back to writing"><a class="back-link" href="../../#writing"><span class="back-link__arrow" aria-hidden="true">←</span><span>All writing</span></a></nav>
+      <article aria-labelledby="post-title">
+        <header class="writing-header">
+          <h1 id="post-title">2026 Summer Part 1 – Building MakeADemo</h1>
+          <p class="writing-reading-time" data-reading-time><!-- Generated from .writing-body by Vite. --></p>
+          <p class="writing-date"><time datetime="2026-09-15">September 15, 2026</time></p>
+        </header>
+        <div class="writing-body">
+<p>Of the many things I did this summer, MakeADemo was probably the single task I spent the most time on. Which is funny, because my friend Anqi and I started working on it precisely because we <em>didn't</em> think it would take much time.</p>
+<figure>
+<a href="./we-thought-it-would-be-easy.png"><img src="/writing/my-summer-part-1-building-makeademo/we-thought-it-would-be-easy.png" alt="A banner reading: We do this not because it is easy, but because we thought it would be easy." width="1170" height="847" style="width: 419px" loading="lazy" decoding="async" /></a>
+</figure>
+<p>The reasoning was that, since agents were already pretty good at writing code, it shouldn't be too hard to get one to run an already working repo of some Typescript webapp, make some playwright script to click around on it, and edit it into a demo video...</p>
+<p>...right?</p>
+<p><strong>Turns out the answer is a resounding no</strong>, and what followed in the next 3 months would provide me a treasure trove of insights into building software with agents, reinforcement learning on long-horizon tasks, and software security. This experience would also become the impetus for my current work on self-improving harnesses.</p>
+<h2>Part 1: Blissful Ignorance</h2>
+<p>In all our naïveté, we thought at the beginning that making an agent harness was overkill and that a simple, linear pipeline should do the job.</p>
+<figure>
+<a href="./initial-pipeline.png"><img src="/writing/my-summer-part-1-building-makeademo/initial-pipeline.png" alt="The initial linear pipeline: get repository information, run the repository in a sandbox, generate Playwright scripts, film footage, and composite the final video." width="3829" height="320" loading="lazy" decoding="async" /></a>
+<figcaption>Fig 1. The initial idea: Get some initial info, run the repo, write a script, and churn out the video.</figcaption>
+</figure>
+<p>We wanted to make this a website people could play around with, so we went with a typical TS stack. Playwright has a feature called screencast, which allows you to programmatically generate quality, annotated videos of your browser test execution directly from the browser rendering engine, and we also found Remotion, an OSS video editing suite that's designed to be programmatically controlled by agents. To host multiple pipelines simultaneously and securely, we used sandboxes from Daytona.</p>
+<p>Everything went quite smoothly, and soon, we had a somewhat working output from a simple example repo:</p>
+<figure>
+<video controls playsinline preload="metadata" aria-label="Early MakeADemo video of Conduit"><source src="/writing/my-summer-part-1-building-makeademo/conduit-early-demo.mp4" type="video/mp4" /><a href="./conduit-early-demo.mp4">Download the demo video</a>.</video>
+<figcaption>Fig 2. It works!</figcaption>
+</figure>
+<h2>Part 2: Problems</h2>
+<figure>
+<a href="./problems-everywhere.png"><img src="/writing/my-summer-part-1-building-makeademo/problems-everywhere.png" alt="Toy Story meme reading: Problems. Problems everywhere." width="600" height="327" style="width: 396px" loading="lazy" decoding="async" /></a>
+</figure>
+<p>After the initial success, we built out a benchmark of repos to test the system on, and here's where the problems started.</p>
+<h3>1. Problems with a linear pipeline</h3>
+<p>When running our benchmark of real repos, it became immediately obvious that a linear pipeline wasn't going to cut it. We'd often find that the pipeline would finish a stage without addressing some hidden error that would only surface later down the line.</p>
+<p>For example, the first stage after information intake was to install dependancies and make any small repairs needed to make the repo runnable inside the sandbox. However, just because a repo doesn't throw any errors on launch, doesn't mean it won't error out when interacted with, or that it has proper backend data populated into it. These issues would only pop up in the later stages when the playwright scripts were ran and the footage reviewed.</p>
+<p>This prompted us to switch to an actually agentic system. We used the PI harness as a base and instead turned the pipeline into a set of tools. The agent could call the tool when it was ready to submit, and would only be allowed to move onto the next stage if the tool gave a positive response. This allowed the agent to self-correct issues that would've belonged to previous stages if there were any.</p>
+<h3>2. Reward hacking</h3>
+<p>After building out this architectural change. We finally saw our first new outputs. I was thrilled to see the video file appear, but all that excitment quickly went away when I saw the demo video.</p>
+<figure>
+<a href="./reward-hacking-comparison.png"><img src="/writing/my-summer-part-1-building-makeademo/reward-hacking-comparison.png" alt="The generated Directus demo above the official Directus interface, showing that the agent built a different frontend." width="1333" height="1557" loading="lazy" decoding="async" /></a>
+<figcaption>Fig 3. On the top is a screenshot of the video demo. On the bottom is a screenshot of the official UI. Something's clearly not right...</figcaption>
+</figure>
+<p>Turns out that a really simple way an agent could achieve it's goal of having a functioning app to demo was to just make an entirely new frontend! This is obviously not what we intended, so we set out to make our pipeline stage validation checks better. We ended up using an LLM as a judge: The footage capture phase uses a separate judge agent that reviews the footage and code and ensures what's being demoed is actually the product itself.</p>
+<h3>3. Generalization</h3>
+<p>Even after solving the reward hacking issue, we continued to deal with a plethora of issues with each new repo we tested our system on. At first, I was hopeful that getting to the bottom of this was simply a matter of time: We ironed out dependency resolution, reworked our security screens to stop falsely flagging benign code, and improved the way the agent extracted frames out of videos so it can better catch UI issues. However, after a month of bug squashing, I came to an uncomfortable conclusion:</p>
+<p><strong>The average Github repo is a lot messier than I had initially thought.</strong></p>
+<p>Repos had broken dependencies, unspecified configuration steps, complicated APIs that were difficult to mock, and don't get me started about monorepos with multiple frontends (people put their company website and main product in the <em>same repo</em>???).</p>
+<p>So, with a heavy heart, I decided to sunset the project. I think I gave project a pretty good shot, but the reality is that the problem space is much too ambiguous for a normal agent harness.</p>
+<figure>
+<a href="./final-agent-workflow.png"><img src="/writing/my-summer-part-1-building-makeademo/final-agent-workflow.png" alt="The final MakeADemo workflow, with validation and repair loops for running the app, writing the demo script, filming footage, and building the video." width="2640" height="3540" style="width: 75%" loading="lazy" decoding="async" /></a>
+<figcaption>Fig 4. The final state of MakeADemo. This is quite simplified. The actual code is unfortunately a lot more complicated...</figcaption>
+</figure>
+<figure>
+<video controls playsinline preload="metadata" aria-label="MakeADemo video of Excalidraw"><source src="/writing/my-summer-part-1-building-makeademo/excalidraw-demo.mp4" type="video/mp4" /><a href="./excalidraw-demo.mp4">Download the demo video</a>.</video>
+<figcaption>Fig 5. When the system works, it's super cool! Excalidraw didn't need a backend to run, so our agent did quite well here!</figcaption>
+</figure>
+<h2>Part 3: The Journey Continues</h2>
+<p>I said that <em>normal</em> agent harnesses wouldn't be able to work in such an ambiguous problem-space, but what if we made the agent adapt the harness to help it resolve edge cases it comes up? This is what a self-improving harness (or <a href="https://arxiv.org/pdf/2603.28052">metaharness</a>) is!</p>
+<p>MakeADemo has a couple more problems than simply the harness architecture like verifiability (what make a demo video 'good'?). Therefore, I'll be first working in a more verifiable domain to explore self-improving harnesses, and maybe even publish some research here! (Update: I'm currently making GPT play a classic roguelike! Weekly updates on my X!)</p>
+<p>I'm hopeful that I'll be able to revisit this project soon. Who knows, maybe just using Astra will solve all my problems!</p>
+<h2>Epilogue: Lessons Learned</h2>
+<h3>1. Obserability is essential when agents write the code</h3>
+<p>Agents can write a lot of code, a lot more than I can practically read, and for an early-stage project, iteration speed is much more important than pristine code. Therefore, I've adopted the workflow of 'working around the edges' while leaving the middle for the agent to figure out. Practically, this means building ready access to the <em>top and the bottom</em> of my code.</p>
+<p>Before making a new feature, I make sure to extensively document the concepts that the feature would be working with: interfaces, schemas, definitions for technical terms. I also make sure that we have excellent logging that's detailed but interpretable. This two-pronged approach allows me to easily identify where a bug is coming from and have a reasonable idea of how to resolve it, while still allowing my agent to quickly iterate on new features.</p>
+<h3>2. Proper reward shaping is super important for RL</h3>
+<p>Although I didn't make a self-improving harness, I did try to set my coding agent on long autonomous sessions to try improve MakeADemo. Along the way, I learned a lot of practical lessons in reinforcement learning, especially about how important reward shaping is! As you might imagine, MakeADemo has very sparse rewards, you either have a video output or no output at all. To ensure the coding agent got better feedback, I split up my benchmark into a number of incremental stages (at first it was just the pipeline stages, but I including some other verification as well later on). This helped the agent know when its adjustments were actually improvements.</p>
+<h3>3. Software security is less like a shield and more like a swamp</h3>
+<p>A big aspect of MakeADemo I tackled since the beginning was security. Because I was allowing close to arbitrary code execution inside the sandboxes, I had to ensure that no mallicious code could cause harm to the software. However, I quickly realized that building 'secure' software is very much a spectrum rather than a clear threshold to pass. Almost any method you use to 'secure' software can be defeated with enough time and resources. Therefore, the practical way to build 'secure' software was not to make an impenetrable fortress, but instead a 'swamp' of countermeasures that would make it annoying enough for outside attackers (or a nosy agent on the inside) that the 'valuables' my software contains just wouldn't be worth the effort. Since MakeADemo was a small project, I eventually realized that making a massive swamp would be overkill.</p>
+<hr />
+<p>Thanks for getting to the end of this super long blog post! I had a lot of fun building this project, not only because I learned a lot but also because I got to do it with Anqi, who's super cool and inspiring to work with! If you want to see the code I've written, it's <a href="https://github.com/MoodyMarshmallow/MakeADemo">here</a>. My self-improving harness project, which I'm working on right now, is <a href="https://github.com/MoodyMarshmallow/ai-dungeon-crawl">here</a>!</p>
+
+        </div>
+      </article>
+      <footer class="writing-footer"><a class="back-link" href="../../#writing"><span class="back-link__arrow" aria-hidden="true">←</span><span>All writing</span></a></footer>
+    </main>
+  </body>
+</html>

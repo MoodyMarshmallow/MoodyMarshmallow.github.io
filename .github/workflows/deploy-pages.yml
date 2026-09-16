@@ -1,4 +1,4 @@
-name: Deploy homepage to GitHub Pages
+name: Deploy site to GitHub Pages
 
 on:
   push:
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build homepage
+    name: Build site
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -38,19 +38,19 @@ jobs:
       - name: Check source
         run: bun run check
 
-      - name: Build homepage for project Pages
+      - name: Build site for project Pages
         run: bun run build -- --base="${{ steps.pages.outputs.base_path }}/"
 
-      - name: Verify homepage-only output
+      - name: Verify production output
         run: bun run check:production-output
 
-      - name: Upload homepage artifact
+      - name: Upload site artifact
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
   deploy:
-    name: Deploy homepage
+    name: Deploy site
     needs: build
     runs-on: ubuntu-latest
     environment:
