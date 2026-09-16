@@ -16,6 +16,7 @@ initSectionNavigation();
 
 const stage = document.querySelector('#ascii-stage') as HTMLElement;
 const viewportHelp = document.querySelector('.viewport-help') as HTMLElement | null;
+const socialLinks = document.querySelector<HTMLElement>('.homepage-hero .social-links');
 const reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 type NavigatorWithUserAgentData = Navigator & {
@@ -146,8 +147,22 @@ let pointerPosition: { x: number; y: number } | null = null;
 let activePointerId: number | null = null;
 let saturationFrame: number | null = null;
 
+function updateSocialLinksOpacity(): void {
+  if (!socialLinks) return;
+  const bounds = socialLinks.getBoundingClientRect();
+  const centerY = bounds.top + bounds.height / 2;
+  const fadeEndY = window.innerHeight / 3;
+  const fadeDistance = centerY + window.scrollY - fadeEndY;
+  const opacity = fadeDistance > 0
+    ? THREE.MathUtils.clamp((centerY - fadeEndY) / fadeDistance, 0, 1)
+    : window.scrollY <= 1 ? 1 : 0;
+  socialLinks.style.opacity = String(opacity);
+  socialLinks.inert = opacity === 0;
+}
+
 function updateRenderSaturation(): void {
   saturationFrame = null;
+  updateSocialLinksOpacity();
   const firstSection = document.querySelector<HTMLElement>('.content-section');
   if (!firstSection) return;
 
@@ -451,6 +466,7 @@ const clock = new THREE.Clock();
 let lastAsciiFrame = 0;
 
 function resize() {
+  scheduleRenderSaturation();
   stageRect = stage.getBoundingClientRect();
   copyRect = document.querySelector('.homepage-copy')?.getBoundingClientRect() ?? null;
   const width = stage.clientWidth;
